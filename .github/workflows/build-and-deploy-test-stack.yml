@@ -14,6 +14,7 @@ env:
 jobs:
   deploy:
     name: Deploy app
+    environment: 'preview-govtool'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
