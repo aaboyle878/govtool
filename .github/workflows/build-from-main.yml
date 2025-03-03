@@ -116,12 +116,15 @@ jobs:
         with:
           string: ${{ matrix.image }}
 
+      - name: Set ENVIRONMENT Variable
+        run: echo "ENVIRONMENT=${{ matrix.network }}" >> $GITHUB_ENV
+
       - name: Build Docker image
         uses: docker/build-push-action@v5
         with:
           context: ${{ matrix.workdir }}
           file: ${{ matrix.dockerfile }}
-          tags: ${{ steps.image_lowercase.outputs.lowercase }}:${{ env.TAG }}
+          tags: ${{ steps.image_lowercase.outputs.lowercase }}-${{ matrix.network }}:${{ env.TAG }}
           load: false
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache
@@ -164,11 +167,19 @@ jobs:
 
           echo "outcome=success" >> $GITHUB_OUTPUT
 
+      - name: Debug TAG Before Docker Push
+        run: |
+            echo "Lowercase Image: ${{ steps.image_lowercase.outputs.lowercase }}"
+            echo "Network: ${{ matrix.network }}"
+            echo "TAG: ${{ env.TAG }}"
+            echo "Final Docker Tag: ${{ steps.image_lowercase.outputs.lowercase }}-${{ matrix.network}}:${{ env.TAG }}"
+        
+        
       - name: Push Docker image to GHCR
         run: |
           docker load -i '/tmp/image-${{ matrix.name }}-${{ env.ENVIRONMENT }}.tar'
           rm -rf '/tmp/image-${{ matrix.name }}-${{ env.ENVIRONMENT }}.tar'
-          docker push ${{ steps.image_lowercase.outputs.lowercase }}:${{ env.TAG }}
+          docker push ${{ steps.image_lowercase.outputs.lowercase }}-${{ matrix.network}}:${{ env.TAG }}
 
       - name: Add tag as a PR comment
         uses: ubie-oss/comment-to-merged-pr-action@v0.3.3
