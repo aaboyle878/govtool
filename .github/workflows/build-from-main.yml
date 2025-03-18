@@ -169,14 +169,6 @@ jobs:
           fi
           echo "Generated TAG: $TAG"
 
-      - name: Configure Gzip/Brotli Compression on NGINX
-        run: |
-          echo 'gzip on;' >> /etc/nginx/nginx.conf
-          echo 'gzip_types text/plain text/css application/javascript image/png image/jpeg image/svg+xml;' >> /etc/nginx/nginx.conf
-          echo 'brotli on;' >> /etc/nginx/nginx.conf
-          echo 'brotli_types text/plain text/css application/javascript image/png image/jpeg image/svg+xml;' >> /etc/nginx/nginx.conf
-          nginx -s reload
-
       - name: Lint Dockerfile
         id: hadolint
         uses: hadolint/hadolint-action@v3.1.0
