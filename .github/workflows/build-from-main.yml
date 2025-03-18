@@ -169,17 +169,6 @@ jobs:
           fi
           echo "Generated TAG: $TAG"
 
-      - name: Compress Static Resources
-        run: |
-          npm install -g terser
-          find ./govtool/frontend/dist -type f -name '*.js' -exec terser {} -o {} \;
-          npm install -g postcss-cli
-          find ./govtool/frontend/dist -type f -name '*.css' -exec postcss {} --use autoprefixer -o {} \;
-          npm install -g imagemin-cli
-          find ./govtool/frontend/dist -type f -name '*.png' -exec imagemin {} --out-dir={} \;
-          find ./govtool/frontend/dist -type f -name '*.jpg' -exec imagemin {} --out-dir={} \;
-          find ./govtool/frontend/dist -type f -name '*.svg' -exec imagemin {} --out-dir={} \;
-        
       - name: Configure Gzip/Brotli Compression on NGINX
         run: |
           echo 'gzip on;' >> /etc/nginx/nginx.conf

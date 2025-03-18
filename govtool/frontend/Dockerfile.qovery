@@ -30,7 +30,22 @@ RUN npm install
 COPY . .
 RUN npm run build
 
+RUN npm install -g terser postcss-cli imagemin-cli
+
+RUN find /src/dist -type f -name '*.js' -exec terser {} -o {} \;
+
+RUN find /src/dist -type f -name '*.css' -exec postcss {} --use autoprefixer -o {} \;
+
+RUN find /src/dist -type f -name '*.png' -exec imagemin {} --out-dir={} \;
+RUN find /src/dist -type f -name '*.jpg' -exec imagemin {} --out-dir={} \;
+RUN find /src/dist -type f -name '*.svg' -exec imagemin {} --out-dir={} \;
+
 FROM nginx:stable-alpine
+RUN apk add --no-cache brotli nginx
+RUN echo 'gzip on;' >> /etc/nginx/nginx.conf && \
+    echo 'gzip_types text/plain text/css application/javascript image/png image/jpeg image/svg+xml;' >> /etc/nginx/nginx.conf && \
+    echo 'brotli on;' >> /etc/nginx/nginx.conf && \
+    echo 'brotli_types text/plain text/css application/javascript image/png image/jpeg image/svg+xml;' >> /etc/nginx/nginx.conf
 EXPOSE 80
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 COPY --from=builder /src/maintenance-page/index.html /usr/share/nginx/html/maintenance.html
