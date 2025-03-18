@@ -5,7 +5,6 @@ on:
     branches:
       - main
       - staging
-  workflow_dispatch:
 
 permissions:
   contents: write
@@ -14,82 +13,82 @@ permissions:
 
 jobs:
   check-build:
-    if: contains(fromJson('["main", "staging", "develop"]'), github.ref_name)
+    if: contains(fromJson('["main", "staging"]'), github.ref_name)
     environment: ${{ matrix.network }}
     strategy:
       fail-fast: false
       matrix:
         include:
           - branch: main
+            network: preview
+            workdir: ./govtool/backend
+            name: govtool-backend
+            dockerfile: ./govtool/backend/Dockerfile.qovery
+            image: ghcr.io/${{ github.repository }}-backend
+            qovery_container_name: govtool-backend
+          - branch: main
+            network: preview
+            workdir: ./govtool/frontend
+            name: govtool-frontend
+            dockerfile: ./govtool/frontend/Dockerfile.qovery
+            image: ghcr.io/${{ github.repository }}-frontend
+            qovery_container_name: govtool-frontend
+          - branch: main
+            network: preview
+            workdir: ./govtool/metadata-validation
+            name: govtool-metadata-validation
+            dockerfile: ./govtool/metadata-validation/Dockerfile
+            image: ghcr.io/${{ github.repository }}-metadata-validation
+            qovery_container_name: govtool-metadata-validation
+          - branch: main
+            network: pre-prod
+            workdir: ./govtool/backend
+            name: govtool-backend
+            dockerfile: ./govtool/backend/Dockerfile.qovery
+            image: ghcr.io/${{ github.repository }}-backend
+            qovery_container_name: govtool-backend
+          - branch: main
+            network: pre-prod
+            workdir: ./govtool/frontend
+            name: govtool-frontend
+            dockerfile: ./govtool/frontend/Dockerfile.qovery
+            image: ghcr.io/${{ github.repository }}-frontend
+            qovery_container_name: govtool-frontend
+          - branch: main
+            network: pre-prod
+            workdir: ./govtool/metadata-validation
+            name: govtool-metadata-validation
+            dockerfile: ./govtool/metadata-validation/Dockerfile
+            image: ghcr.io/${{ github.repository }}-metadata-validation
+            qovery_container_name: govtool-metadata-validation
+          - branch: main
+            network: prod
+            workdir: ./govtool/backend
+            name: govtool-backend
+            dockerfile: ./govtool/backend/Dockerfile.qovery
+            image: ghcr.io/${{ github.repository }}-backend
+            qovery_container_name: govtool-backend
+          - branch: main
+            network: prod
+            workdir: ./govtool/frontend
+            name: govtool-frontend
+            dockerfile: ./govtool/frontend/Dockerfile.qovery
+            image: ghcr.io/${{ github.repository }}-frontend
+            qovery_container_name: govtool-frontend
+          - branch: main
+            network: prod
+            workdir: ./govtool/metadata-validation
+            name: govtool-metadata-validation
+            dockerfile: ./govtool/metadata-validation/Dockerfile
+            image: ghcr.io/${{ github.repository }}-metadata-validation
+            qovery_container_name: govtool-metadata-validation
+          - branch: staging
             network: preview-govtool
             workdir: ./govtool/backend
             name: govtool-backend
             dockerfile: ./govtool/backend/Dockerfile.qovery
             image: ghcr.io/${{ github.repository }}-backend
             qovery_container_name: govtool-backend
-          - branch: main
-            network: preview-govtool
-            workdir: ./govtool/frontend
-            name: govtool-frontend
-            dockerfile: ./govtool/frontend/Dockerfile.qovery
-            image: ghcr.io/${{ github.repository }}-frontend
-            qovery_container_name: govtool-frontend
-          - branch: main
-            network: preview-govtool
-            workdir: ./govtool/metadata-validation
-            name: govtool-metadata-validation
-            dockerfile: ./govtool/metadata-validation/Dockerfile
-            image: ghcr.io/${{ github.repository }}-metadata-validation
-            qovery_container_name: govtool-metadata-validation
-          - branch: main
-            network: pre-prod-govtool
-            workdir: ./govtool/backend
-            name: govtool-backend
-            dockerfile: ./govtool/backend/Dockerfile.qovery
-            image: ghcr.io/${{ github.repository }}-backend
-            qovery_container_name: govtool-backend
-          - branch: main
-            network: pre-prod-govtool
-            workdir: ./govtool/frontend
-            name: govtool-frontend
-            dockerfile: ./govtool/frontend/Dockerfile.qovery
-            image: ghcr.io/${{ github.repository }}-frontend
-            qovery_container_name: govtool-frontend
-          - branch: main
-            network: pre-prod-govtool
-            workdir: ./govtool/metadata-validation
-            name: govtool-metadata-validation
-            dockerfile: ./govtool/metadata-validation/Dockerfile
-            image: ghcr.io/${{ github.repository }}-metadata-validation
-            qovery_container_name: govtool-metadata-validation
-          - branch: main
-            network: prod-govtool
-            workdir: ./govtool/backend
-            name: govtool-backend
-            dockerfile: ./govtool/backend/Dockerfile.qovery
-            image: ghcr.io/${{ github.repository }}-backend
-            qovery_container_name: govtool-backend
-          - branch: main
-            network: prod-govtool
-            workdir: ./govtool/frontend
-            name: govtool-frontend
-            dockerfile: ./govtool/frontend/Dockerfile.qovery
-            image: ghcr.io/${{ github.repository }}-frontend
-            qovery_container_name: govtool-frontend
-          - branch: main
-            network: prod-govtool
-            workdir: ./govtool/metadata-validation
-            name: govtool-metadata-validation
-            dockerfile: ./govtool/metadata-validation/Dockerfile
-            image: ghcr.io/${{ github.repository }}-metadata-validation
-            qovery_container_name: govtool-metadata-validation
-          - branch: staging
-            network: preview-govtool
-            workdir: ./govtool/backend
-            name: govtool-backend
-            dockerfile: ./govtool/backend/Dockerfile.qovery
-            image: ghcr.io/${{ github.repository }}-backend
-            qovery_container_name: govtool-backend
           - branch: staging
             network: preview-govtool
             workdir: ./govtool/frontend
@@ -105,68 +104,48 @@ jobs:
             image: ghcr.io/${{ github.repository }}-metadata-validation
             qovery_container_name: govtool-metadata-validation
           - branch: staging
-            network: pre-prod-govtool
+            network: pre-prod
             workdir: ./govtool/backend
             name: govtool-backend
             dockerfile: ./govtool/backend/Dockerfile.qovery
             image: ghcr.io/${{ github.repository }}-backend
             qovery_container_name: govtool-backend
           - branch: staging
-            network: pre-prod-govtool
+            network: pre-prod
             workdir: ./govtool/frontend
             name: govtool-frontend
             dockerfile: ./govtool/frontend/Dockerfile.qovery
             image: ghcr.io/${{ github.repository }}-frontend
             qovery_container_name: govtool-frontend
           - branch: staging
-            network: pre-prod-govtool
+            network: pre-prod
             workdir: ./govtool/metadata-validation
             name: govtool-metadata-validation
             dockerfile: ./govtool/metadata-validation/Dockerfile
             image: ghcr.io/${{ github.repository }}-metadata-validation
             qovery_container_name: govtool-metadata-validation
           - branch: staging
-            network: prod-govtool
+            network: prod
             workdir: ./govtool/backend
             name: govtool-backend
             dockerfile: ./govtool/backend/Dockerfile.qovery
             image: ghcr.io/${{ github.repository }}-backend
             qovery_container_name: govtool-backend
           - branch: staging
-            network: prod-govtool
+            network: prod
             workdir: ./govtool/frontend
             name: govtool-frontend
             dockerfile: ./govtool/frontend/Dockerfile.qovery
             image: ghcr.io/${{ github.repository }}-frontend
             qovery_container_name: govtool-frontend
           - branch: staging
-            network: prod-govtool
+            network: prod
             workdir: ./govtool/metadata-validation
             name: govtool-metadata-validation
             dockerfile: ./govtool/metadata-validation/Dockerfile
             image: ghcr.io/${{ github.repository }}-metadata-validation
             qovery_container_name: govtool-metadata-validation
-          - branch: develop
-            network: dev-govtool
-            workdir: ./govtool/backend
-            name: govtool-backend
-            dockerfile: ./govtool/backend/Dockerfile.qovery
-            image: ghcr.io/${{ github.repository }}-backend
-            qovery_container_name: govtool-backend
-          - branch: develop
-            network: dev-govtool
-            workdir: ./govtool/frontend
-            name: govtool-frontend
-            dockerfile: ./govtool/frontend/Dockerfile.qovery
-            image: ghcr.io/${{ github.repository }}-frontend
-            qovery_container_name: govtool-frontend
-          - branch: develop
-            network: dev-govtool
-            workdir: ./govtool/metadata-validation
-            name: govtool-metadata-validation
-            dockerfile: ./govtool/metadata-validation/Dockerfile
-            image: ghcr.io/${{ github.repository }}-metadata-validation
-            qovery_container_name: govtool-metadata-validation
+        
 
     runs-on: ubuntu-latest
     steps:
@@ -189,7 +168,25 @@ jobs:
             echo "TAG=${SANITIZED_BRANCH}-${{ github.sha }}-${{ github.run_number }}" >> $GITHUB_ENV
           fi
           echo "Generated TAG: $TAG"
-      
+
+      - name: Compress Static Resources
+        run: |
+          npm install -g terser
+          find ./govtool/frontend/dist -type f -name '*.js' -exec terser {} -o {} \;
+          npm install -g postcss-cli
+          find ./govtool/frontend/dist -type f -name '*.css' -exec postcss {} --use autoprefixer -o {} \;
+          npm install -g imagemin-cli
+          find ./govtool/frontend/dist -type f -name '*.png' -exec imagemin {} --out-dir={} \;
+          find ./govtool/frontend/dist -type f -name '*.jpg' -exec imagemin {} --out-dir={} \;
+          find ./govtool/frontend/dist -type f -name '*.svg' -exec imagemin {} --out-dir={} \;
+        
+      - name: Configure Gzip/Brotli Compression on NGINX
+        run: |
+          echo 'gzip on;' >> /etc/nginx/nginx.conf
+          echo 'gzip_types text/plain text/css application/javascript image/png image/jpeg image/svg+xml;' >> /etc/nginx/nginx.conf
+          echo 'brotli on;' >> /etc/nginx/nginx.conf
+          echo 'brotli_types text/plain text/css application/javascript image/png image/jpeg image/svg+xml;' >> /etc/nginx/nginx.conf
+          nginx -s reload
 
       - name: Lint Dockerfile
         id: hadolint
