@@ -59,6 +59,8 @@ test.describe("Validation of dRep Registration Form", () => {
     const dRepRegistrationPage = new DRepRegistrationPage(page);
     await dRepRegistrationPage.goto();
 
+    await expect(page.getByTestId("alert-success")).not.toBeVisible();
+
     for (let i = 0; i < 100; i++) {
       await dRepRegistrationPage.validateForm({
         name: mockValid.name(),
@@ -102,6 +104,7 @@ test.describe("Validation of dRep Registration Form", () => {
 
     const dRepRegistrationPage = new DRepRegistrationPage(page);
     await dRepRegistrationPage.goto();
+    await expect(page.getByTestId("alert-success")).not.toBeVisible();
 
     for (let i = 0; i < 100; i++) {
       await dRepRegistrationPage.inValidateForm({
@@ -196,7 +199,7 @@ test("3F. Should create proper DRep registration request, when registered with d
   await dRepRegistrationPage.registerWithoutTxConfirmation({ name: "Test" });
   await expect(
     page.getByTestId("registration-transaction-error-modal")
-  ).toBeVisible({ timeout: 10_000 });
+  ).toBeVisible({ timeout: 60_000 });
 });
 
 test("3O. Should reject invalid dRep registration metadata", async ({

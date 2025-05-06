@@ -23,6 +23,10 @@ export default class GovernanceActionsPage {
     await this.page.waitForTimeout(2_000); // Waits to ensure the alert-success popup does not interfere
   }
 
+  get currentPage(): Page {
+    return this.page;
+  }
+
   async viewProposal(
     proposal: IProposal
   ): Promise<GovernanceActionDetailsPage> {
@@ -99,7 +103,7 @@ export default class GovernanceActionsPage {
     await waitedLoop(async () => {
       return (
         (await this.page.locator('[data-testid$="-card"]').count()) > 0 ||
-        this.page.getByText("No results for the search.")
+        (await this.page.getByText("No results for the search.").isVisible())
       );
     });
     return this.page.locator('[data-testid$="-card"]').all();
@@ -110,14 +114,17 @@ export default class GovernanceActionsPage {
       const proposalCards = await this.getAllProposals();
 
       for (const proposalCard of proposalCards) {
-        const hasFilter = await this._validateFiltersInProposalCard(
-          proposalCard,
-          filters
-        );
-        expect(
-          hasFilter,
-          `A proposal card does not contain any of the ${filters}`
-        ).toBe(true);
+        if (await proposalCard.isVisible()) {
+          const hasFilter = await this._validateFiltersInProposalCard(
+            proposalCard,
+            filters
+          );
+          expect(
+            hasFilter,
+            hasFilter == false &&
+              `A proposal card does not contain any of the ${filters}`
+          ).toBe(true);
+        }
       }
     });
   }

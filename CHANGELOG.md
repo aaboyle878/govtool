@@ -18,8 +18,56 @@ changes.
 
 ### Removed
 
-## [v2.0.13](https://github.com/IntersectMBO/govtool/releases/tag/v2.0.13) 2025-02-27
+## [v2.0.16](https://github.com/IntersectMBO/govtool/releases/tag/v2.0.16) 2025-03-17
 
+
+### Added
+
+- Add support for preprod in matomo analytics [Issue 3173](https://github.com/IntersectMBO/govtool/issues/3173)
+
+### Fixed
+
+- hotfix for ada handle and payment address validation order [Issue 3155](https://github.com/IntersectMBO/govtool/issues/3155)
+- fix proposal list performance by pre-filtering active proposals [Issue 3190](https://github.com/IntersectMBO/govtool/issues/3190)
+- Fix wrong prefix of script based dreps in CIP-129 standard [Issue 3203](https://github.com/IntersectMBO/govtool/issues/3203)
+
+### Changed
+
+- Exclude network total stake and info from network metrics [Issue 3189](https://github.com/IntersectMBO/govtool/issues/3189)
+- Change restriction level for re-voting on governance actions [Issue 3191](https://github.com/IntersectMBO/govtool/issues/3191)
+
+### Removed
+
+## [v2.0.15](https://github.com/IntersectMBO/govtool/releases/tag/v2.0.15) 2025-03-11
+
+### Added
+
+- Add support for ada handle in drep payment address [Issue 3155](https://github.com/IntersectMBO/govtool/issues/3155)
+- Improve numerical data formatting in drep directory [Issue 3148](https://github.com/IntersectMBO/govtool/issues/3148)
+
+### Fixed
+
+### Changed
+
+### Removed
+
+## [v2.0.14](https://github.com/IntersectMBO/govtool/releases/tag/v2.0.14) 2025-03-06
+
+### Added
+
+- Add image tag for DRep in GovTool metadata [Issue 3137](https://github.com/IntersectMBO/govtool/issues/3137)
+
+### Fixed
+
+- Fix calculating withdrawals when rewards records are empty for a given stake key [Issue 3134](https://github.com/IntersectMBO/govtool/issues/3134)
+
+### Changed
+
+### Removed
+
+- Remove ratification threshold for Info Action for Consitutional Committee [Issue 3108](https://github.com/IntersectMBO/govtool/issues/3108)
+
+## [v2.0.13](https://github.com/IntersectMBO/govtool/releases/tag/v2.0.13) 2025-02-27
 
 ### Added
 

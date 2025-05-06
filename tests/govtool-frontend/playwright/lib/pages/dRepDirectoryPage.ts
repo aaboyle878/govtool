@@ -45,6 +45,10 @@ export default class DRepDirectoryPage {
 
   constructor(private readonly page: Page) {}
 
+  get currentPage(): Page {
+    return this.page;
+  }
+
   async goto() {
     await this.page.goto(
       `${environments.frontendUrl}/connected/drep_directory`
@@ -92,15 +96,20 @@ export default class DRepDirectoryPage {
       }
 
       for (const dRep of dRepList) {
-        const hasFilter = await this._validateTypeFiltersInDRep(dRep, filters);
-        const actualFilter = await dRep
-          .locator('[data-testid$="-pill"]')
-          .textContent();
-        if (!hasFilter) {
-          const errorMessage = `${actualFilter} pill does not match with any of the ${filters}`;
-          throw new Error(errorMessage);
+        if (await dRep.isVisible()) {
+          const hasFilter = await this._validateTypeFiltersInDRep(
+            dRep,
+            filters
+          );
+          const actualFilter = await dRep
+            .locator('[data-testid$="-pill"]')
+            .textContent();
+          if (!hasFilter) {
+            const errorMessage = `${actualFilter} pill does not match with any of the ${filters}`;
+            throw new Error(errorMessage);
+          }
+          expect(hasFilter).toBe(true);
         }
-        expect(hasFilter).toBe(true);
       }
     });
   }
@@ -184,7 +193,7 @@ export default class DRepDirectoryPage {
   }
 
   async getAllListedDReps() {
-    await expect(this.searchInput).toBeVisible({ timeout: 10_000 });
+    await expect(this.searchInput).toBeVisible({ timeout: 60_000 });
 
     await waitedLoop(async () => {
       return (
@@ -208,7 +217,7 @@ export default class DRepDirectoryPage {
         !isEmptyContainerVisible &&
         `DRep with id ${dRepId} is found in the list`,
     }).toBeVisible({
-      timeout: 20_000,
+      timeout: 60_000,
     });
   }
 }

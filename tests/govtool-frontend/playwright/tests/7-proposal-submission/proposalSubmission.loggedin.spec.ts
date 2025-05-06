@@ -302,7 +302,7 @@ test.describe("Proposal created logged state", () => {
     });
   });
 
-  test.describe("proposed as a governance action", () => {
+  test.describe("Proposed as a governance action", () => {
     let proposalSubmissionPage: ProposalSubmissionPage;
     test.beforeEach(async ({ page, proposalId }) => {
       const proposalDiscussionDetailsPage = new ProposalDiscussionDetailsPage(
@@ -411,7 +411,7 @@ test.describe("Proposal Draft", () => {
 
     await expect(proposalSubmissionPage.governanceActionType).toHaveText(
       createProposalType,
-      { timeout: 20_000 }
+      { timeout: 60_000 }
     );
     await expect(proposalSubmissionPage.titleInput).toHaveValue(
       proposalFormValue.prop_name

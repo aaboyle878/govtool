@@ -4,11 +4,14 @@ import {
   RewardAddress,
 } from "@emurgo/cardano-serialization-lib-asmjs";
 import i18n from "@/i18n";
+import { adaHandleService } from "@/services/AdaHandle";
 
 export const URL_REGEX =
   /^(?:(?:https?:\/\/)?(?:\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}|(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,})(?:\/[^\s]*)?)|(?:ipfs:\/\/(?:[a-zA-Z0-9]+(?:\/[a-zA-Z0-9._-]+)*))$|^$/;
 export const HASH_REGEX = /^[0-9A-Fa-f]+$/;
 export const PAYMENT_ADDRESS_REGEX = /addr1[a-z0-9]+/i;
+export const IMAGE_REGEX =
+  /^(https?:\/\/[^\s]+\.(?:png|jpg|jpeg|gif|bmp|webp|svg)(\?.*)?$|https?:\/\/[^\s]+$|data:image\/(?:png|jpeg|gif|bmp|webp|svg\+xml);base64,[A-Za-z0-9+/]+={0,2}$)/;
 
 export function isValidURLFormat(str: string) {
   if (!str.length) return false;
@@ -45,10 +48,20 @@ export async function isReceivingAddress(address?: string) {
     if (!address) {
       return true;
     }
+
+    // Validation for ada handles needs to go first as
+    // handles might be shorter then bech32 addresses
+    const isValidAdaHandle = await adaHandleService.isValidAdaHandle(address);
+
+    if (isValidAdaHandle) {
+      return true;
+    }
+
     const receivingAddress = Address.from_bech32(address);
-    return receivingAddress
-      ? true
-      : i18n.t("forms.errors.mustBeReceivingAddress");
+    if (receivingAddress) {
+      return true;
+    }
+    return i18n.t("forms.errors.mustBeReceivingAddress");
   } catch (e) {
     return i18n.t("forms.errors.mustBeReceivingAddress");
   }

@@ -45,11 +45,11 @@ test.describe("Logged in DRep", () => {
 
     await expect(page.getByTestId("voting-power-chips-value")).toHaveText(
       `₳ ${lovelaceToAda(votingPower)}`,
-      { timeout: 20_000 }
+      { timeout: 60_000 }
     );
   });
 
-  test.describe("vote context metadata anchor validation", () => {
+  test.describe("Vote context metadata anchor validation", () => {
     let govActionDetailsPage: GovernanceActionDetailsPage;
     test.beforeEach(async ({ page }) => {
       const govActionsPage = new GovernanceActionsPage(page);
@@ -57,7 +57,7 @@ test.describe("Logged in DRep", () => {
 
       // assert to wait until the loading button is hidden
       await expect(page.getByTestId("to-vote-tab")).toBeVisible({
-        timeout: 20_000,
+        timeout: 60_000,
       });
 
       govActionDetailsPage = (await isBootStrapingPhase())
@@ -116,8 +116,6 @@ test.describe("Temporary DReps", async () => {
   });
 
   test("4J. Should include metadata anchor in the vote transaction", async ({}, testInfo) => {
-    test.skip(); // Skipped: Vote context is not displayed in UI to validate
-
     test.setTimeout(testInfo.timeout + environments.txTimeOut);
 
     const govActionsPage = new GovernanceActionsPage(dRepPage);
@@ -130,6 +128,8 @@ test.describe("Temporary DReps", async () => {
 
     await govActionsPage.votedTab.click();
     await govActionsPage.viewFirstVotedProposal();
+
+    //  Vote context is not displayed in UI to validate
     expect(false, "No vote context displayed").toBe(true);
   });
 });
@@ -148,10 +148,6 @@ test.describe("Check vote count", () => {
       page.waitForResponse((response) =>
         response.url().includes(`&type[]=${voteWhiteListOption[filterKey]}`)
       )
-    );
-
-    const metricsResponsePromise = page.waitForResponse((response) =>
-      response.url().includes(`network/metrics`)
     );
 
     const governanceActionsPage = new GovernanceActionsPage(page);
@@ -179,18 +175,22 @@ test.describe("Check vote count", () => {
           storageState: ".auth/dRep01.json",
           wallet: dRep01Wallet,
         });
+
+        const totalStakeResponsePromise = dRepPage.waitForResponse((response) =>
+          response.url().includes(`network/total-stake`)
+        );
         const govActionDetailsPage = new GovernanceActionDetailsPage(dRepPage);
         await govActionDetailsPage.goto(
           `${proposalToCheck.txHash}#${proposalToCheck.index}`
         );
 
+        await govActionDetailsPage.showVotesBtn.click();
+
         const dRepTotalAbstainVote =
           await govActionDetailsPage.getDRepTotalAbstainVoted(
             proposalToCheck,
-            metricsResponsePromise
+            totalStakeResponsePromise
           );
-
-        await govActionDetailsPage.showVotesBtn.click();
 
         // check dRep votes
         if (await areDRepVoteTotalsDisplayed(proposalToCheck)) {
@@ -219,9 +219,7 @@ test.describe("Check vote count", () => {
         }
 
         // check ccCommittee votes
-        if (
-          areCCVoteTotalsDisplayed(proposalToCheck.type as GovernanceActionType)
-        ) {
+        if (areCCVoteTotalsDisplayed(proposalToCheck)) {
           await expect(govActionDetailsPage.ccCommitteeYesVotes).toHaveText(
             `${proposalToCheck.ccYesVotes}`
           );

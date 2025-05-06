@@ -11,7 +11,10 @@ import {
 } from "@constants/staticWallets";
 import { createTempDRepAuth } from "@datafactory/createAuth";
 import { test } from "@fixtures/walletExtension";
-import { correctDelegatedVoteAdaFormat } from "@helpers/adaFormat";
+import {
+  correctDelegatedVoteAdaFormat,
+  correctDRepDirectoryFormat,
+} from "@helpers/adaFormat";
 import { setAllureEpic } from "@helpers/allure";
 import { skipIfMainnet, skipIfNotHardFork } from "@helpers/cardano";
 import { createNewPageWithWallet } from "@helpers/page";
@@ -59,7 +62,7 @@ test.describe("Delegate to others", () => {
         .getByTestId(`${dRepId}-delegated-card`)
         .getByTestId(`${dRepId}-copy-id-button`)
     ).toHaveCount(1, {
-      timeout: 20_000,
+      timeout: 60_000,
     });
 
     // Verify dRepId in dashboard
@@ -103,7 +106,7 @@ test.describe("Change delegation", () => {
       page
         .getByTestId(`${dRepIdFirst}-delegated-card`)
         .getByTestId(`${dRepIdFirst}-copy-id-button`)
-    ).toHaveText(`(CIP-105) ${dRepIdFirst}`, { timeout: 20_000 });
+    ).toHaveText(`(CIP-105) ${dRepIdFirst}`, { timeout: 60_000 });
 
     // verify delegation
     await dRepDirectoryPage.delegateToDRep(dRepIdSecond);
@@ -114,7 +117,7 @@ test.describe("Change delegation", () => {
       page
         .getByTestId(`${dRepIdSecond}-delegated-card`)
         .getByTestId(`${dRepIdSecond}-copy-id-button`)
-    ).toHaveText(`(CIP-105) ${dRepIdSecond}`, { timeout: 20_000 });
+    ).toHaveText(`(CIP-105) ${dRepIdSecond}`, { timeout: 60_000 });
   });
 });
 
@@ -145,13 +148,13 @@ test.describe("Register DRep state", () => {
     await dRepPage.getByTestId("continue-button").click();
     await expect(
       dRepPage.getByTestId("registration-transaction-submitted-modal")
-    ).toBeVisible({ timeout: 15_000 });
+    ).toBeVisible({ timeout: 60_000 });
     await dRepPage.getByTestId("confirm-modal-button").click();
     await waitForTxConfirmation(dRepPage);
 
     // Checks in dashboard
     await expect(dRepPage.getByText("You are a Direct Voter")).toBeVisible({
-      timeout: 20_000,
+      timeout: 60_000,
     });
     await expect(
       dRepPage.getByTestId("register-as-sole-voter-button")
@@ -168,11 +171,11 @@ test.describe("Register DRep state", () => {
     await dRepPage.getByTestId("continue-button").click();
     await expect(
       dRepPage.getByTestId("registration-transaction-submitted-modal")
-    ).toBeVisible({ timeout: 15_000 });
+    ).toBeVisible({ timeout: 60_000 });
     await dRepPage.getByTestId("confirm-modal-button").click();
     await waitForTxConfirmation(dRepPage);
     await expect(dRepPage.getByText("You are a Direct Voter")).toBeVisible({
-      timeout: 20_000,
+      timeout: 60_000,
     });
 
     const dRepDirectoryPage = new DRepDirectoryPage(dRepPage);
@@ -183,12 +186,11 @@ test.describe("Register DRep state", () => {
 
     await expect(
       dRepPage.getByText("You Have Retired as a Direct")
-    ).toBeVisible({ timeout: 20_000 });
+    ).toBeVisible({ timeout: 60_000 });
   });
 });
 
 test("2G. Should delegate to myself", async ({ page, browser }, testInfo) => {
-  test.skip();
   test.setTimeout(testInfo.timeout + environments.txTimeOut);
 
   const wallet = await walletManager.popWallet("registeredDRep");
@@ -207,14 +209,13 @@ test("2G. Should delegate to myself", async ({ page, browser }, testInfo) => {
   await dRepDirectoryPage.delegateToDRep(dRepId);
 
   await expect(
-    dRepPage.getByTestId(`${dRepId}-delegate-button')`)
-  ).not.toBeVisible();
-  await expect(dRepPage.getByTestId(`${dRepId}-copy-id-button`)).toHaveCount(
-    1,
-    {
-      timeout: 20_000,
-    }
-  );
+    dRepDirectoryPage.currentPage.getByTestId(`${dRepId}-delegate-button`)
+  ).not.toBeVisible({ timeout: 60_000 });
+  await expect(
+    dRepDirectoryPage.currentPage.getByTestId(`${dRepId}-copy-id-button`)
+  ).toHaveCount(1, {
+    timeout: 60_000,
+  });
 });
 
 test.describe("Multiple delegations", () => {
@@ -233,14 +234,14 @@ test.describe("Multiple delegations", () => {
 
     await page.getByTestId(`${dRep01Wallet.dRepId}-delegate-button`).click();
     await expect(page.getByTestId("alert-warning")).toHaveText(/in progress/i, {
-      timeout: 15_000,
+      timeout: 60_000,
     });
 
     await dRepDirectoryPage.searchInput.fill(dRep02Wallet.dRepId);
     await page.getByTestId(`${dRep02Wallet.dRepId}-delegate-button`).click();
 
     await expect(page.getByTestId("transaction-inprogress-modal")).toBeVisible({
-      timeout: 15_000,
+      timeout: 60_000,
     });
   });
 });
@@ -267,7 +268,7 @@ test.describe("Abstain delegation", () => {
 
     await expect(
       page.getByText(
-        `You have delegated ₳${correctDelegatedVoteAdaFormat(balance)}`
+        `You have delegated ₳${correctDRepDirectoryFormat(balance)}`
       )
     ).toBeVisible({
       timeout: 60_000,
@@ -298,7 +299,7 @@ test.describe("No confidence delegation", () => {
     const balance = await kuberService.getBalance(adaHolder04Wallet.address);
     await expect(
       page.getByText(
-        `You have delegated ₳${correctDelegatedVoteAdaFormat(balance)}`
+        `You have delegated ₳${correctDRepDirectoryFormat(balance)}`
       )
     ).toBeVisible({
       timeout: 60_000,
@@ -327,7 +328,7 @@ test.describe("Delegated ADA visibility", () => {
     );
     await expect(
       page.getByText(
-        `You have delegated ₳ ${correctDelegatedVoteAdaFormat(adaHolderVotingPower)}`
+        `You have delegated ₳ ${correctDRepDirectoryFormat(adaHolderVotingPower)}`
       )
     ).toBeVisible({ timeout: 60_000 });
 

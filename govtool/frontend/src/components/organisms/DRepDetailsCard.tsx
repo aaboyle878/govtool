@@ -7,7 +7,7 @@ import { useCardano, useModal } from "@context";
 import { useDelegateTodRep, useScreenDimension, useTranslation } from "@hooks";
 import { Card, DataMissingInfoBox } from "@molecules";
 import {
-  correctVoteAdaFormat,
+  correctDRepDirectoryFormat,
   encodeCIP129Identifier,
   testIdFromLabel,
 } from "@utils";
@@ -117,7 +117,7 @@ export const DRepDetailsCard = ({
           <CopyableText
             value={encodeCIP129Identifier({
               txID: `${isScriptBased ? "23" : "22"}${drepId}`,
-              bech32Prefix: isScriptBased ? "drep_script" : "drep",
+              bech32Prefix: "drep",
             })}
             dataTestId="copy-cip-129-drep-id-button"
           />
@@ -146,7 +146,7 @@ export const DRepDetailsCard = ({
             sx={{ display: "flex", flexDirection: "row", mt: 0.5 }}
           >
             {"₳ "}
-            {correctVoteAdaFormat(votingPower)}
+            {correctDRepDirectoryFormat(votingPower)}
           </Typography>
         </DRepDetailsInfoItem>
       </Box>

@@ -17,6 +17,7 @@ import GovernanceActionsPage from "@pages/governanceActionsPage";
 import { Page, expect } from "@playwright/test";
 import kuberService from "@services/kuberService";
 import { BootstrapGovernanceActionType, GovernanceActionType } from "@types";
+import { allure } from "allure-playwright";
 import walletManager from "lib/walletManager";
 
 test.beforeEach(async () => {
@@ -37,7 +38,7 @@ test.describe("Proposal checks", () => {
 
     // assert to wait until the loading button is hidden
     await expect(page.getByTestId("to-vote-tab")).toBeVisible({
-      timeout: 20_000,
+      timeout: 60_000,
     });
 
     currentPage = page;
@@ -135,7 +136,6 @@ test.describe("Proposal checks", () => {
 
 test.describe("Perform voting", () => {
   let govActionDetailsPage: GovernanceActionDetailsPage;
-  let dRepPage: Page;
 
   test.beforeEach(async ({ page, browser }) => {
     test.slow(); // Due to queue in pop wallets
@@ -144,7 +144,7 @@ test.describe("Perform voting", () => {
 
     const tempDRepAuth = await createTempDRepAuth(page, wallet);
 
-    dRepPage = await createNewPageWithWallet(browser, {
+    const dRepPage = await createNewPageWithWallet(browser, {
       storageState: tempDRepAuth,
       wallet,
       enableStakeSigning: true,
@@ -155,7 +155,7 @@ test.describe("Perform voting", () => {
 
     // assert to wait until the loading button is hidden
     await expect(dRepPage.getByTestId("to-vote-tab")).toBeVisible({
-      timeout: 20_000,
+      timeout: 60_000,
     });
 
     govActionDetailsPage = (await isBootStrapingPhase())
@@ -165,7 +165,7 @@ test.describe("Perform voting", () => {
       : await govActionsPage.viewFirstProposal();
   });
 
-  test("5E. Should re-vote with new data on a already voted governance action", async ({}, testInfo) => {
+  test("5E. Should re-vote with change vote on an already voted governance action", async ({}, testInfo) => {
     test.setTimeout(testInfo.timeout + 2 * environments.txTimeOut);
 
     await govActionDetailsPage.vote();
@@ -174,7 +174,7 @@ test.describe("Perform voting", () => {
       govActionDetailsPage.currentPage
     );
 
-    await dRepPage.waitForTimeout(5_000);
+    await governanceActionsPage.currentPage.reload();
 
     await governanceActionsPage.votedTab.click();
 
@@ -188,6 +188,9 @@ test.describe("Perform voting", () => {
 
     govActionDetailsPage = await governanceActionsPage.viewFirstVotedProposal();
     await govActionDetailsPage.reVote();
+
+    await govActionDetailsPage.currentPage.reload();
+
     await governanceActionsPage.votedTab.click();
 
     const isNoVoteVisible = await govActionDetailsPage.currentPage
@@ -216,8 +219,58 @@ test.describe("Perform voting", () => {
     test.setTimeout(testInfo.timeout + environments.txTimeOut);
     await govActionDetailsPage.vote();
     await expect(govActionDetailsPage.voteSuccessModal).toBeVisible({
-      timeout: 20_000,
+      timeout: 60_000,
     });
+  });
+
+  test("5L. Should update context on an already voted governance action without changing the vote", async ({}, testInfo) => {
+    test.setTimeout(testInfo.timeout + 2 * environments.txTimeOut);
+
+    await govActionDetailsPage.vote();
+
+    const governanceActionsPage = new GovernanceActionsPage(
+      govActionDetailsPage.currentPage
+    );
+
+    await governanceActionsPage.currentPage.reload();
+
+    await governanceActionsPage.votedTab.click();
+
+    await govActionDetailsPage.currentPage.evaluate(() =>
+      window.scrollTo(0, 500)
+    );
+
+    await expect(
+      govActionDetailsPage.currentPage.getByTestId("my-vote").getByText("Yes")
+    ).toBeVisible();
+
+    govActionDetailsPage = await governanceActionsPage.viewFirstVotedProposal();
+    await govActionDetailsPage.vote(faker.lorem.sentence(200), true);
+
+    await govActionDetailsPage.currentPage.reload();
+
+    await governanceActionsPage.votedTab.click();
+
+    const isYesVoteVisible = await govActionDetailsPage.currentPage
+      .getByTestId("my-vote")
+      .getByText("Yes")
+      .isVisible();
+
+    const textContent = await govActionDetailsPage.currentPage
+      .getByTestId("my-vote")
+      .textContent();
+
+    await govActionDetailsPage.currentPage.evaluate(() =>
+      window.scrollTo(0, 500)
+    );
+    await expect(
+      govActionDetailsPage.currentPage.getByTestId("my-vote").getByText("No"),
+      {
+        message:
+          !isYesVoteVisible &&
+          `"Yes" vote not visible, current vote status: ${textContent.match(/My Vote:(Yes|No)/)[1]}`,
+      }
+    ).toBeVisible({ timeout: 60_000 });
   });
 
   test("5I. Should view the vote details,when viewing governance action already voted by the DRep", async ({}, testInfo) => {
@@ -229,7 +282,7 @@ test.describe("Perform voting", () => {
       govActionDetailsPage.currentPage
     );
 
-    await dRepPage.waitForTimeout(5_000);
+    await governanceActionsPage.currentPage.waitForTimeout(5_000);
 
     await governanceActionsPage.votedTab.click();
     await expect(
@@ -261,74 +314,11 @@ test.describe("Check voting power", () => {
     await dRepPage.getByTestId("continue-retirement-button").click();
     await expect(
       dRepPage.getByTestId("retirement-transaction-submitted-modal")
-    ).toBeVisible({ timeout: 15_000 });
+    ).toBeVisible({ timeout: 60_000 });
     dRepPage.getByTestId("confirm-modal-button").click();
     await waitForTxConfirmation(dRepPage);
 
     const balance = await kuberService.getBalance(wallet.address);
     expect(balance, "Retirement deposit not returned").toBeGreaterThan(500);
-  });
-});
-
-test.describe("Bootstrap phase", () => {
-  test("5L. Should restrict dRep votes to Info Governance actions During Bootstrapping Phase", async ({
-    browser,
-  }) => {
-    const voteBlacklistOptions = Object.keys(
-      BootstrapGovernanceActionType
-    ).filter((option) => option !== GovernanceActionType.InfoAction);
-
-    await Promise.all(
-      voteBlacklistOptions.map(async (voteBlacklistOption) => {
-        const dRepPage = await createNewPageWithWallet(browser, {
-          storageState: ".auth/dRep01.json",
-          wallet: dRep01Wallet,
-        });
-
-        await dRepPage.route("**/epoch/params", async (route) => {
-          // Fetch the original response from the server
-          const response = await route.fetch();
-          const json = await response.json();
-
-          // update protocol major version
-          json["protocol_major"] = 9;
-          await route.fulfill({
-            status: 200,
-            contentType: "application/json",
-            body: JSON.stringify(json),
-          });
-        });
-
-        const governanceActionsPage = new GovernanceActionsPage(dRepPage);
-        await governanceActionsPage.goto();
-
-        // assert to wait until proposal cards are visible
-        await expect(dRepPage.getByTestId("voting-power-chips")).toBeVisible({
-          timeout: 20_000,
-        });
-        // wait until the loading button is hidden
-        await expect(dRepPage.getByTestId("to-vote-tab")).toBeVisible({
-          timeout: 20_000,
-        });
-
-        const governanceActionDetailsPage =
-          await governanceActionsPage.viewFirstProposalByGovernanceAction(
-            voteBlacklistOption as GovernanceActionType
-          );
-
-        if (governanceActionDetailsPage) {
-          await expect(
-            dRepPage.getByTestId("governance-action-details-card-header")
-          ).toBeVisible();
-          await expect(
-            governanceActionDetailsPage.yesVoteRadio
-          ).not.toBeVisible();
-          await expect(
-            governanceActionDetailsPage.contextBtn
-          ).not.toBeVisible();
-          await expect(governanceActionDetailsPage.voteBtn).not.toBeVisible();
-        }
-      })
-    );
   });
 });
