@@ -136,8 +136,8 @@ jobs:
         with:
           context: ${{ matrix.workdir }}
           file: ${{ matrix.dockerfile }}
-          tags: |
-            ${{ steps.image_lowercase.outputs.lowercase }}-${{ env.CLEAN_NETWORK }}:${{ env.COMMIT_TAG }}
+          tags: >
+            ${{ steps.image_lowercase.outputs.lowercase }}-${{ env.CLEAN_NETWORK }}:${{ env.COMMIT_TAG }},
             ${{ steps.image_lowercase.outputs.lowercase }}-${{ env.CLEAN_NETWORK }}:${{ env.STATIC_TAG }}
           load: false
           cache-from: type=local,src=/tmp/.buildx-cache
