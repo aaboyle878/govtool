@@ -1,14 +1,7 @@
 name: Storybook Test
 
 on:
-  push:
-    paths:
-      - govtool/frontend/**
-      - .github/workflows/test_storybook.yml
-
-defaults:
-  run:
-    working-directory: ./govtool/frontend
+ workflow_dispatch: 
 
 jobs:
   storybook:
