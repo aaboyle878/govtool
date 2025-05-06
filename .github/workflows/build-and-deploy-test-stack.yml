@@ -2,10 +2,7 @@ name: Build and deploy GovTool test stack
 run-name: Deploy by @${{ github.actor }}
 
 on:
-  push:
-    branches:
-      - test
-      - infra/test-chores
+  workflow_dispatch: 
 
 env:
   ENVIRONMENT: "test"

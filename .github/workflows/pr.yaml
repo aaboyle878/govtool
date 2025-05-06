@@ -1,12 +1,7 @@
 name: Lint,Test,Security Checks
 
 on:
-  pull_request:
-    branches:
-      - develop
-      - test
-      - staging
-      - main
+ workflow_dispatch: 
 
 permissions:
   contents: read

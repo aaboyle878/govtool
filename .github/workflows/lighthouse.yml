@@ -1,11 +1,6 @@
 name: Lighthouse
 
 on:
-  workflow_run:
-    workflows:
-      - Build and deploy GovTool test stack
-    types:
-      - completed
   workflow_dispatch:
 
 jobs:
