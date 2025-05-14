@@ -3,9 +3,6 @@ name: Lint,Test,Security Checks
 on:
   pull_request:
     branches:
-      - develop
-      - test
-      - staging
       - main
 
 permissions:
