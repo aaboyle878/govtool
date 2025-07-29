@@ -13,8 +13,8 @@ jobs:
       - name: Use Haskell
         uses: haskell-actions/setup@v2
         with:
-          ghc-version: '9.2.7'
-          cabal-version: '3.6.0.0'
+          ghc-version: '9.4.1'
+          cabal-version: '3.8.1.0'
 
       - name: Use Python
         uses: actions/setup-python@v2
