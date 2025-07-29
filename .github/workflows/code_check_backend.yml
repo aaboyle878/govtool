@@ -27,7 +27,7 @@ jobs:
 
       - name: Install HLint
         run: |
-          rm -rf ~/.cabal/packages
+          rm -rf ~/.cabal/packages ~/.cabal/store ~/.ghcup/cache
           cabal update
           cabal install hlint
 
@@ -57,7 +57,7 @@ jobs:
 
       - name: Install HLint
         run: |
-          rm -rf ~/.cabal/packages
+          rm -rf ~/.cabal/packages ~/.cabal/store ~/.ghcup/cache
           cabal update
           cabal install stylish-haskell
 
