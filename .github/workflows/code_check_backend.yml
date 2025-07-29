@@ -29,12 +29,7 @@ jobs:
         run: |
           rm -rf ~/.cabal ~/.ghcup
           mkdir -p ~/.cabal
-          cat <<EOF > ~/.cabal/config
-          repository hackage.haskell.org
-            url: http://hackage.haskell.org/
-            secure: False
-          EOF
-          cabal update
+          cabal update --index-state=HEAD
           cabal install hlint
 
       - name: Checkout code
@@ -63,14 +58,9 @@ jobs:
 
       - name: Install HLint
         run: |
-          rm -rf ~/.cabal ~/.ghcup
+          rrm -rf ~/.cabal ~/.ghcup
           mkdir -p ~/.cabal
-          cat <<EOF > ~/.cabal/config
-          repository hackage.haskell.org
-            url: http://hackage.haskell.org/
-            secure: False
-          EOF
-          cabal update
+          cabal update --index-state=HEAD
           cabal install stylish-haskell
 
       - name: Checkout code
