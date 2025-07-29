@@ -13,7 +13,7 @@ jobs:
       - name: Use Haskell
         uses: haskell-actions/setup@v2
         with:
-          ghc-version: '9.4.1'
+          ghc-version: '9.2.8'
           cabal-version: '3.8.1.0'
           cabal-update: false
 
@@ -49,7 +49,7 @@ jobs:
       - name: Use Haskell
         uses: haskell-actions/setup@v2
         with:
-          ghc-version: '9.4.1'
+          ghc-version: '9.2.8'
           cabal-version: '3.8.1.0'
           cabal-update: false
 
